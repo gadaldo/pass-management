@@ -12,7 +12,7 @@ public interface CustomerPersistenceService {
 
 	CustomerResourceO findById(Long customerId);
 
-	List<Customer> findAll();
+	List<CustomerResourceO> findAll();
 
 	void deleteCustomer(Long id);
 }

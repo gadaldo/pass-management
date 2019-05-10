@@ -13,13 +13,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @Builder
 @AllArgsConstructor(access = PACKAGE)
 @NoArgsConstructor(access = PACKAGE)
-@Setter(value = PACKAGE)
 @Entity
 @Table(name = "CUSTOMERS")
 public class Customer {
