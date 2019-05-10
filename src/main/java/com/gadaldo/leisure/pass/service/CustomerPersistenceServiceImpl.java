@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
-import com.gadaldo.leisure.pass.rest.model.CustomerTO;
+import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +20,7 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 	private final CustomerRepository customerRepository;
 
 	@Override
-	public Customer save(CustomerTO newCustomer) {
+	public Customer save(CustomerResourceI newCustomer) {
 		Customer customer = Customer.builder()
 				.name(newCustomer.getName())
 				.surname(newCustomer.getSurname())
@@ -29,8 +31,8 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 	}
 
 	@Override
-	public Optional<Customer> findById(Long customerId) {
-		return customerRepository.findById(customerId);
+	public CustomerResourceO findById(Long customerId) {
+		return toCustomerResource(customerRepository.findById(customerId));
 	}
 
 	@Override
@@ -38,8 +40,20 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 		return customerRepository.findAll();
 	}
 
+	@Override
 	public void deleteCustomer(Long id) {
 		customerRepository.deleteById(id);
+	}
+
+	private CustomerResourceO toCustomerResource(Optional<Customer> customer) {
+		return customer.map(c -> {
+			return CustomerResourceO.builder()
+					.id(c.getId())
+					.name(c.getName())
+					.surname(c.getSurname())
+					.homeCity(c.getHomeCity())
+					.build();
+		}).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 	}
 
 }

@@ -1,7 +1,6 @@
 package com.gadaldo.leisure.pass.rest.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gadaldo.leisure.pass.repository.model.Customer;
-import com.gadaldo.leisure.pass.rest.model.CustomerTO;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import com.gadaldo.leisure.pass.service.CustomerPersistenceService;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class CustomerController {
 	private final CustomerPersistenceService customerPersistenceService;
 
 	@PostMapping("/customers")
-	public ResponseEntity<String> createCustomer(@RequestBody CustomerTO newCustomer) {
+	public ResponseEntity<String> createCustomer(@RequestBody CustomerResourceI newCustomer) {
 		log.info("New customer: {}", newCustomer);
 
 		try {
@@ -39,14 +39,12 @@ public class CustomerController {
 	}
 
 	@GetMapping("/customers/{customerId}")
-	public ResponseEntity<String> getCustomer(@PathVariable Long customerId) {
+	public ResponseEntity<CustomerResourceO> getCustomer(@PathVariable Long customerId) {
 		log.info("Get customer: {}", customerId);
 
-		Optional<Customer> optCustomer = customerPersistenceService.findById(customerId);
+		CustomerResourceO optCustomer = customerPersistenceService.findById(customerId);
 
-		if (optCustomer.isPresent())
-			return new ResponseEntity<>("Customer found: " + optCustomer.get(), HttpStatus.OK);
-		throw new ResourceNotFoundException("Customer not found by id: " + customerId);
+		return new ResponseEntity<>(optCustomer, HttpStatus.OK);
 	}
 
 	@GetMapping("/customers")
