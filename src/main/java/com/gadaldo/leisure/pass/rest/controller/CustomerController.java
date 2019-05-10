@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import com.gadaldo.leisure.pass.service.CustomerPersistenceService;
@@ -31,7 +30,7 @@ public class CustomerController {
 		log.info("New customer: {}", newCustomer);
 
 		try {
-			return new ResponseEntity<>("Created customer: " + customerPersistenceService.save(newCustomer).getId(), HttpStatus.CREATED);
+			return new ResponseEntity<>("{\"id\": " + customerPersistenceService.save(newCustomer).getId() + "}", HttpStatus.CREATED);
 		} catch (Exception e) {
 			log.error("Error occurred", e);
 			throw new ResourceNotFoundException("Error saving customer", e);
@@ -48,23 +47,23 @@ public class CustomerController {
 	}
 
 	@GetMapping("/customers")
-	public ResponseEntity<String> getAllCustomers() {
+	public ResponseEntity<List<CustomerResourceO>> getAllCustomers() {
 		log.info("List customers");
 
-		List<Customer> customers = customerPersistenceService.findAll();
+		List<CustomerResourceO> customers = customerPersistenceService.findAll();
 
 		if (customers != null && !customers.isEmpty())
-			return new ResponseEntity<>("Customers found: " + customers, HttpStatus.OK);
+			return new ResponseEntity<>(customers, HttpStatus.OK);
 		throw new ResourceNotFoundException("No existing customers found");
 	}
 
 	@DeleteMapping("/customers/{customerId}")
-	public ResponseEntity<String> deleteCustomer(@PathVariable Long customerId) {
+	public ResponseEntity<?> deleteCustomer(@PathVariable Long customerId) {
 		log.info("Delete customer: {}", customerId);
 
 		customerPersistenceService.deleteCustomer(customerId);
 
-		return new ResponseEntity<>("Customer deleted", HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }

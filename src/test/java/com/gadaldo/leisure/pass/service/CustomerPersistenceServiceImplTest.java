@@ -100,16 +100,19 @@ public class CustomerPersistenceServiceImplTest {
 
 	@Test
 	public void shouldFindListOfCustomers() {
-		List<Customer> expectedCustomers = new ArrayList<Customer>();
-		expectedCustomers.add(newCustomer(1l, "John", "Dooh", "Milan"));
+		List<Customer> existingCustomers = new ArrayList<>();
+		existingCustomers.add(newCustomer(1l, "John", "Dooh", "Milan"));
+		existingCustomers.add(newCustomer(2l, "Alex", "Ferguson", "Paris"));
+		existingCustomers.add(newCustomer(3l, "Sarah", "Williams", "Madrid"));
 
-		expectedCustomers.add(newCustomer(2l, "Alex", "Ferguson", "Paris"));
+		List<CustomerResourceO> expectedCustomers = new ArrayList<>();
+		expectedCustomers.add(newCustomerResource(1l, "John", "Dooh", "Milan"));
+		expectedCustomers.add(newCustomerResource(2l, "Alex", "Ferguson", "Paris"));
+		expectedCustomers.add(newCustomerResource(3l, "Sarah", "Williams", "Madrid"));
 
-		expectedCustomers.add(newCustomer(3l, "Sarah", "Williams", "Madrid"));
+		when(customerRepositoryMock.findAll()).thenReturn(existingCustomers);
 
-		when(customerRepositoryMock.findAll()).thenReturn(expectedCustomers);
-
-		List<Customer> retrievedCustomers = testObj.findAll();
+		List<CustomerResourceO> retrievedCustomers = testObj.findAll();
 
 		assertEquals(expectedCustomers, retrievedCustomers);
 		verify(customerRepositoryMock, times(1)).findAll();
@@ -117,11 +120,12 @@ public class CustomerPersistenceServiceImplTest {
 
 	@Test
 	public void shouldReturnEmptyListWhenNoCustomers() {
+		ee.expect(ResourceNotFoundException.class);
+		ee.expectMessage("No customer found");
+
 		when(customerRepositoryMock.findAll()).thenReturn(Collections.emptyList());
 
-		List<Customer> customers = testObj.findAll();
-
-		assertEquals(0, customers.size());
+		testObj.findAll();
 	}
 
 	@Test
@@ -136,6 +140,15 @@ public class CustomerPersistenceServiceImplTest {
 
 	private Customer newCustomer(Long id, String name, String surname, String homeCity) {
 		return Customer.builder()
+				.id(id)
+				.name(name)
+				.surname(surname)
+				.homeCity(homeCity)
+				.build();
+	}
+
+	private CustomerResourceO newCustomerResource(Long id, String name, String surname, String homeCity) {
+		return CustomerResourceO.builder()
 				.id(id)
 				.name(name)
 				.surname(surname)

@@ -1,7 +1,9 @@
 package com.gadaldo.leisure.pass.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 
@@ -36,8 +38,8 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 	}
 
 	@Override
-	public List<Customer> findAll() {
-		return customerRepository.findAll();
+	public List<CustomerResourceO> findAll() {
+		return toCustomerResource(customerRepository.findAll());
 	}
 
 	@Override
@@ -46,14 +48,25 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 	}
 
 	private CustomerResourceO toCustomerResource(Optional<Customer> customer) {
-		return customer.map(c -> {
-			return CustomerResourceO.builder()
-					.id(c.getId())
-					.name(c.getName())
-					.surname(c.getSurname())
-					.homeCity(c.getHomeCity())
-					.build();
-		}).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+		return customer.map(c -> toCustomerResource(c))
+				.orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 	}
 
+	private List<CustomerResourceO> toCustomerResource(List<Customer> customers) {
+		if (Objects.isNull(customers) || customers.isEmpty())
+			throw new ResourceNotFoundException("No customer found");
+
+		return customers.stream()
+				.map(c -> toCustomerResource(c))
+				.collect(Collectors.toList());
+	}
+
+	private CustomerResourceO toCustomerResource(Customer c) {
+		return CustomerResourceO.builder()
+				.id(c.getId())
+				.name(c.getName())
+				.surname(c.getSurname())
+				.homeCity(c.getHomeCity())
+				.build();
+	}
 }
