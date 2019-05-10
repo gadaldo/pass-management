@@ -1,7 +1,6 @@
 package com.gadaldo.leisure.pass.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -25,7 +24,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
-import com.gadaldo.leisure.pass.rest.model.CustomerTO;
+import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomerPersistenceServiceImplTest {
@@ -41,7 +42,7 @@ public class CustomerPersistenceServiceImplTest {
 
 	@Test
 	public void shouldSaveCustomer() {
-		CustomerTO to = new CustomerTO();
+		CustomerResourceI to = new CustomerResourceI();
 		to.setHomeCity("London");
 		to.setName("Alex");
 		to.setSurname("Wood");
@@ -68,7 +69,7 @@ public class CustomerPersistenceServiceImplTest {
 		when(customerRepositoryMock.findById(1l))
 				.thenReturn(Optional.of(newCustomer(1l, "Alex", "Wood", "London")));
 
-		Customer customer = testObj.findById(1l).get();
+		CustomerResourceO customer = testObj.findById(1l);
 
 		assertEquals("Alex", customer.getName());
 		assertEquals("Wood", customer.getSurname());
@@ -79,14 +80,13 @@ public class CustomerPersistenceServiceImplTest {
 	}
 
 	@Test
-	public void shouldNotFindCustomerWhenIdIsInvalid() {
-		when(customerRepositoryMock.findById(1l))
-				.thenReturn(Optional.empty());
+	public void shouldThrowResourceNotFoundExceptionWhenCustomerNotFound() {
+		ee.expect(ResourceNotFoundException.class);
+		ee.expectMessage("Customer not found");
 
-		Optional<Customer> customer = testObj.findById(1l);
-		assertFalse(customer.isPresent());
+		when(customerRepositoryMock.findById(1l)).thenReturn(Optional.empty());
 
-		verify(customerRepositoryMock, times(1)).findById(1l);
+		testObj.findById(1l);
 	}
 
 	@Test

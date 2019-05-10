@@ -11,7 +11,7 @@ import com.gadaldo.leisure.pass.repository.CustomerRepository;
 import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
-import com.gadaldo.leisure.pass.rest.model.PassTO;
+import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +24,7 @@ public class PassPersistenceServiceImpl implements PassPersistenceService {
 	private final CustomerRepository customerRepository;
 
 	@Override
-	public Long addPassToCustomer(Long customerId, PassTO passTO) {
+	public Long addPassToCustomer(Long customerId, PassResourceI passTO) {
 		Pass pass = Pass.builder()
 				.lenght(passTO.getLenght())
 				.city(passTO.getCity())
@@ -44,7 +44,7 @@ public class PassPersistenceServiceImpl implements PassPersistenceService {
 	}
 
 	@Override
-	public Pass updateCustomerPass(Long customerId, Long passId, PassTO passTO) {
+	public Pass updateCustomerPass(Long customerId, Long passId, PassResourceI passTO) {
 		Optional<Pass> passToUpdate = passRepository.findByIdAndCustomerId(passId, customerId);
 
 		return passToUpdate.map(p -> {

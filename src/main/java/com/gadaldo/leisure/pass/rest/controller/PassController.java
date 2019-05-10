@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gadaldo.leisure.pass.repository.model.Pass;
-import com.gadaldo.leisure.pass.rest.model.PassTO;
+import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 import com.gadaldo.leisure.pass.service.PassPersistenceService;
 
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class PassController {
 	}
 
 	@PostMapping("/customers/{customerId}/passes")
-	public ResponseEntity<String> addPass(@PathVariable Long customerId, @RequestBody PassTO addPass) {
+	public ResponseEntity<String> addPass(@PathVariable Long customerId, @RequestBody PassResourceI addPass) {
 		log.info("Add pass: {}", addPass);
 
 		Long passId = passPersistenceService.addPassToCustomer(customerId, addPass);
@@ -47,7 +47,7 @@ public class PassController {
 	}
 
 	@PutMapping("/customers/{customerId}/passes/{passId}")
-	public ResponseEntity<String> updatePass(@PathVariable Long customerId, @PathVariable Long passId, @RequestBody PassTO passTO) {
+	public ResponseEntity<String> updatePass(@PathVariable Long customerId, @PathVariable Long passId, @RequestBody PassResourceI passTO) {
 		log.info("Update pass: {}", passId);
 
 		Pass updatedPass = passPersistenceService.updateCustomerPass(customerId, passId, passTO);

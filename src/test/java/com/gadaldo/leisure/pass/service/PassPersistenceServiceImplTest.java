@@ -6,9 +6,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,7 +31,7 @@ import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
-import com.gadaldo.leisure.pass.rest.model.PassTO;
+import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PassPersistenceServiceImplTest {
@@ -51,7 +50,7 @@ public class PassPersistenceServiceImplTest {
 
 	@Test
 	public void shouldSavePassForGivenCustomer() {
-		PassTO to = new PassTO();
+		PassResourceI to = new PassResourceI();
 		to.setCity("London");
 		to.setLenght(2);
 
@@ -71,7 +70,7 @@ public class PassPersistenceServiceImplTest {
 		ee.expect(ResourceNotFoundException.class);
 		ee.expectMessage("Customer Not Found");
 
-		PassTO to = new PassTO();
+		PassResourceI to = new PassResourceI();
 		to.setCity("London");
 		to.setLenght(2);
 
@@ -109,7 +108,7 @@ public class PassPersistenceServiceImplTest {
 
 	@Test
 	public void shouldUpdateCustomerPass() {
-		PassTO to = new PassTO();
+		PassResourceI to = new PassResourceI();
 		to.setCity("London");
 		to.setLenght(10);
 
@@ -132,7 +131,7 @@ public class PassPersistenceServiceImplTest {
 		ee.expect(ResourceNotFoundException.class);
 		ee.expectMessage("Pass Not Found");
 
-		PassTO to = new PassTO();
+		PassResourceI to = new PassResourceI();
 		to.setCity("London");
 		to.setLenght(10);
 
