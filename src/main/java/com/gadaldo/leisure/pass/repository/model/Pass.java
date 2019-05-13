@@ -42,7 +42,7 @@ public class Pass {
 	private String city;
 
 	@NotNull
-	private int lenght;
+	private int length;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
