@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "============================================= building service ============================================"
+
+mvn clean install
+
 echo "========================================= removing mysql container ========================================"
 
 docker stop $(docker ps -a -q --filter="name=mysql")
@@ -11,8 +15,8 @@ docker run -d -p 3306:3306 --name=mysql --env="MYSQL_ROOT_PASSWORD=passw0rd!" --
 
 sleep 5
 
-echo "=================================================== Done =================================================="
+echo "============================================== running service ============================================"
 
-echo "==================================== building artifact & running service =================================="
+mvn spring-boot:run
 
-mvn clean install spring-boot:run
+
