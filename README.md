@@ -18,6 +18,9 @@ Features:
 
 - a vendor can check if pass is expired, based on created date and pass length; _NOTE_ vendor id it's just mock, can be any string.
 
+The idea is to have 2 entities Customer and Pass with a 1..n relation between them.
+3 different rest controllers to manage customers, passes and vendors.
+
 Requirements
 ---
 
@@ -28,7 +31,7 @@ Requirements
 Run
 ---
 
-Place in the root folder: pass-management and rn following command line:
+Move to root folder pass-management and run following command line:
 
 ```bash
 ./run.sh
@@ -96,3 +99,7 @@ curl -X GET localhost:9090/pass-management/vendors/vendor_a/passes/3/validate
 
 Further improvements
 ---
+
+- Make service as container
+- Make PUT idempotent
+- Validate Vendors code
