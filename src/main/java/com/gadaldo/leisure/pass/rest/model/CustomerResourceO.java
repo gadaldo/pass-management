@@ -7,9 +7,9 @@ import lombok.Data;
 @Builder
 public class CustomerResourceO {
 
-	private Long id;
-	private String name;
-	private String surname;
-	private String homeCity;
+    private final Long id;
+    private final String name;
+    private final String surname;
+    private final String homeCity;
 
 }

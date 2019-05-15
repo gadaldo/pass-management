@@ -11,7 +11,7 @@ docker rm $(docker ps -a -q --filter="name=mysql")
 
 echo "========================================= running mysql instance =========================================="
 
-docker run -d -p 3306:3306 --name=mysql --env="MYSQL_ROOT_PASSWORD=passw0rd!" --env="MYSQL_PASSWORD=passw0rd!" --env="MYSQL_DATABASE=pass-management" mysql
+docker run -d -p 3306:3306 --name=mysql -e MYSQL_ROOT_PASSWORD=passw0rd -e MYSQL_PASSWORD=passw0rd -e MYSQL_USER=pass -e MYSQL_DATABASE=pass-management mysql
 
 sleep 5
 

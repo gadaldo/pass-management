@@ -7,8 +7,8 @@ import lombok.Data;
 @Builder
 public class PassResourceO {
 
-    private Long id;
-    private String city;
-    private int length;
+    private final Long id;
+    private final String city;
+    private final Integer length;
 
 }
