@@ -79,7 +79,7 @@ public class CustomerControllerTest {
 		when().get("/pass-management/customers/1")
 				.then().assertThat()
 				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(containsString("Customer not found"));
+				.body(equalTo("Customer not found"));
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class CustomerControllerTest {
 		when().delete("/pass-management/customers/404")
 				.then().assertThat()
 				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(containsString("No customer found"));
+				.body(equalTo("No customer found"));
 	}
 
 	private Customer newCustomer() {
