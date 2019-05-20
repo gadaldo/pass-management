@@ -113,6 +113,6 @@ curl -X GET localhost:9090/pass-management/vendors/vendor_a/passes/3/validate
 Further improvements
 ---
 
-- Make service as container
+- Make service as container - https://github.com/moby/moby/issues/25562
 - Make PUT idempotent
 - Validate Vendors code
