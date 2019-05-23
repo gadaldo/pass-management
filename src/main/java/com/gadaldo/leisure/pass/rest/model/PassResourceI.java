@@ -6,6 +6,6 @@ import lombok.Data;
 public class PassResourceI {
 
 	private String city;
-	private int lenght;
+	private int length;
 
 }

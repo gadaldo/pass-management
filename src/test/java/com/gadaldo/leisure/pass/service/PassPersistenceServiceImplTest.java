@@ -50,7 +50,7 @@ public class PassPersistenceServiceImplTest {
     public void shouldSavePassForGivenCustomer() {
         PassResourceI to = new PassResourceI();
         to.setCity("London");
-        to.setLenght(2);
+        to.setLength(2);
 
         PassResourceO expected = newPassResource(1L, "London", 2);
 
@@ -72,7 +72,7 @@ public class PassPersistenceServiceImplTest {
 
         PassResourceI to = new PassResourceI();
         to.setCity("London");
-        to.setLenght(2);
+        to.setLength(2);
 
         when(customerRepositoryMock.findById(1L)).thenReturn(Optional.empty());
 
@@ -120,7 +120,7 @@ public class PassPersistenceServiceImplTest {
     public void shouldUpdateCustomerPass() {
         PassResourceI inputRes = new PassResourceI();
         inputRes.setCity("London");
-        inputRes.setLenght(10);
+        inputRes.setLength(10);
 
         Pass pass = newPass(10L, "London", 3, new Date(), Customer.builder().id(1L).build());
 
@@ -143,7 +143,7 @@ public class PassPersistenceServiceImplTest {
 
         PassResourceI to = new PassResourceI();
         to.setCity("London");
-        to.setLenght(10);
+        to.setLength(10);
 
         when(passRepositoryMock.findByIdAndCustomerId(10L, 1L)).thenReturn(Optional.empty());
 

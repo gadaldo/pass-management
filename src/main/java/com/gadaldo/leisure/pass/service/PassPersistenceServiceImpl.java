@@ -32,7 +32,7 @@ public class PassPersistenceServiceImpl implements PassPersistenceService {
 	@Override
 	public PassResourceO addPassToCustomer(Long customerId, PassResourceI passTO) {
 		Pass pass = Pass.builder()
-				.length(passTO.getLenght())
+				.length(passTO.getLength())
 				.city(passTO.getCity())
 				.createdAt(new Date())
 				.build();
@@ -54,7 +54,7 @@ public class PassPersistenceServiceImpl implements PassPersistenceService {
 		Optional<Pass> passToUpdate = passRepository.findByIdAndCustomerId(passId, customerId);
 
 		return passToUpdate.map(p -> {
-			p.setLength(passTO.getLenght());
+			p.setLength(passTO.getLength());
 			return toPassResource(passRepository.save(p));
 		}).orElseThrow(() -> new ResourceNotFoundException("Pass Not Found"));
 	}

@@ -46,7 +46,7 @@ Move to root folder pass-management and run following command lines:
 ```bash
 mvn clean install
 
-docker-compose up
+docker-compose up --force-recreate                                                                                                                                                                                                                                                                       19:14
 ```
 
 This will create the jar with dependencies and will spin up 2 containers: mysql and the service which has been created by the maven install.
@@ -56,12 +56,20 @@ _NOTE:_ make sure there are no other service on port _9090_ and _3307_ for mysql
 If you need to change the port number, edit the docker-compose file and change the values of the ports accordingly
 
 
-To shut down all the services run the following:
+To shut down all the services and removing all images, run the following:
 
 ```bash
-docker-compose down -v
+docker-compose down --rm all
 ```
 
+Run developer mode
+---
+
+To run in developer mode and enjoying spring devtool run:
+
+```bash
+./run-dev.sh
+```
 
 Sample http requests:
 ---
@@ -99,13 +107,13 @@ curl -X DELETE localhost:9090/pass-management/customers/1
 add pass for user '1':
 
 ```bash
-curl -X POST localhost:9090/pass-management/customers/1/passes -H 'Content-type:application/json' -d '{"city" : "Naples", "lenght" : 3}'
+curl -X POST localhost:9090/pass-management/customers/1/passes -H 'Content-type:application/json' -d '{"city" : "Naples", "length" : 3}'
 ```
 
 amend pass '5' for user '1':
 
 ```bash
-curl -X PUT localhost:9090/pass-management/customers/1/passes/5 -H 'Content-type:application/json' -d '{"city" : "Naples", "lenght" : 10}'
+curl -X PUT localhost:9090/pass-management/customers/1/passes/5 -H 'Content-type:application/json' -d '{"city" : "Naples", "length" : 10}'
 ```
 
 delete pass '2' for customer '1':

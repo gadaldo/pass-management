@@ -102,7 +102,7 @@ public class PassControllerTest {
 
 		PassResourceI requestBody = new PassResourceI();
 		requestBody.setCity("Milan");
-		requestBody.setLenght(2);
+		requestBody.setLength(2);
 
 		PassResourceO returned = given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
 				.body(requestBody).post("pass-management/customers/" + customer.getId() + "/passes")
@@ -120,7 +120,7 @@ public class PassControllerTest {
 	public void addPassesShouldReturnNoPassFoundWhenCustomerDoesNotExists() {
 		PassResourceI requestBody = new PassResourceI();
 		requestBody.setCity("Milan");
-		requestBody.setLenght(2);
+		requestBody.setLength(2);
 
 		given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
 				.body(requestBody).post("pass-management/customers/404/passes")
@@ -133,7 +133,7 @@ public class PassControllerTest {
 	public void updatePassesShouldReturnPassNotFoundWhenCustomerDoesNotExists() {
 		PassResourceI requestBody = new PassResourceI();
 		requestBody.setCity("Milan");
-		requestBody.setLenght(2);
+		requestBody.setLength(2);
 
 		given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
 				.body(requestBody).put("pass-management/customers/404/passes/303")
@@ -149,7 +149,7 @@ public class PassControllerTest {
 
 		PassResourceI requestBody = new PassResourceI();
 		requestBody.setCity("Naples");
-		requestBody.setLenght(10);
+		requestBody.setLength(10);
 
 		PassResourceO expected = PassResourceO.builder()
 				.city("Naples")
