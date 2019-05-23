@@ -123,10 +123,8 @@ curl -X GET localhost:9090/pass-management/vendors/vendor_a/passes/3/validate
 Further improvements
 ---
 
-- Make service as container
 - Make PUT idempotent
 - Validate Vendors code
-- update junit to 5
-- update Java version to 11
+- Update Java version to 11
 - DeveloperController to create mock customers
-- add UI
+- Create UI
