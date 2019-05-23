@@ -37,21 +37,31 @@ Requirements
 
 - docker
 - maven 3.2 or above
-- java 8
 
 Run
 ---
 
-Move to root folder pass-management and run following command line:
+Move to root folder pass-management and run following command lines:
 
 ```bash
-./run.sh
+mvn clean install
+
+docker-compose up
 ```
 
-This will stop any running docker containers named "mysql".
-_NOTE_ make sure there are no other service on port _9090_ and _3307_ for mysql.
+This will create the jar with dependencies and will spin up 2 containers: mysql and the service which has been created by the maven install.
 
-If you need to change the port number, edit the run.sh file and change the property: mysql_port
+_NOTE:_ make sure there are no other service on port _9090_ and _3307_ for mysql.
+
+If you need to change the port number, edit the docker-compose file and change the values of the ports accordingly
+
+
+To shut down all the services run the following:
+
+```bash
+docker-compose down -v
+```
+
 
 Sample http requests:
 ---
@@ -71,7 +81,7 @@ curl -X GET localhost:9090/pass-management/customers/
 get customer by id '1':
 
 ```bash
-curl -X localhost:9090/pass-management/customers/1
+curl -X GET localhost:9090/pass-management/customers/1
 ```
 
 list passes for customer '1':
@@ -113,6 +123,10 @@ curl -X GET localhost:9090/pass-management/vendors/vendor_a/passes/3/validate
 Further improvements
 ---
 
-- Make service as container - https://github.com/moby/moby/issues/25562
+- Make service as container
 - Make PUT idempotent
 - Validate Vendors code
+- update junit to 5
+- update Java version to 11
+- DeveloperController to create mock customers
+- add UI

@@ -112,14 +112,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.9</version>
-                <configuration>
-                    <repository>leisure-pass/${project.artifactId}</repository>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>

@@ -2,7 +2,7 @@ version: '3'
 
 services:
   mysql-container:
-    image: mysql:latest
+    image: mysql:8.0.16
     ports:
       - 3306:3306
     environment:
@@ -12,6 +12,9 @@ services:
       - MYSQL_USER=pass
   pass-management-service:
     restart: on-failure
+    build:
+      context: ./
+      dockerfile: Dockerfile
     image: leisure-pass/pass-management
     depends_on:
       - mysql-container
