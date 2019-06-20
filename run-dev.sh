@@ -6,9 +6,12 @@ export mysql_password="passw0rd"
 export mysql_user="pass"
 export mysql_schema_name="pass-management"
 
+PROJECT_NAME="pass-management"
+MAVEN_IMAGE="maven:3-jdk-8-slim"
+
 echo "============================================= building service ============================================"
 
-mvn clean install
+docker run -it --rm -v "$(pwd)"/:/usr/src/$PROJECT_NAME -w /usr/src/$PROJECT_NAME $MAVEN_IMAGE mvn clean install
 
 echo "========================================= removing mysql container ========================================"
 
@@ -24,7 +27,11 @@ docker run -d -p ${mysql_port}:3306 --name=mysql \
 	-e MYSQL_DATABASE=${mysql_schema_name} \
 	mysql
 
-sleep 5
+sleep 10
+
+#while ! mysqladmin ping -h"$DB_HOST" --silent; do
+#    sleep 1
+#done
 
 echo "============================================== running service ============================================"
 

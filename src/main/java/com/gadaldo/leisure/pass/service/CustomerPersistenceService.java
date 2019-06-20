@@ -1,18 +1,22 @@
 package com.gadaldo.leisure.pass.service;
 
-import java.util.List;
-
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 
+import java.util.List;
+
 public interface CustomerPersistenceService {
 
-	Customer save(CustomerResourceI customerTO);
+    List<CustomerResourceO> insertAll(List<CustomerResourceI> customerTO);
 
-	CustomerResourceO findById(Long customerId);
+    void deleteAll();
 
-	List<CustomerResourceO> findAll();
+    Customer save(CustomerResourceI customerTO);
 
-	void deleteCustomer(Long id);
+    CustomerResourceO findById(Long customerId);
+
+    List<CustomerResourceO> findAll();
+
+    void deleteCustomer(Long id);
 }

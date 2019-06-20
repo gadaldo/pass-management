@@ -128,11 +128,22 @@ validate pass:
 curl -X GET localhost:9090/pass-management/vendors/vendor_a/passes/3/validate
 ```
 
+generate 10 random customers
+```bash
+curl -X POST localhost:9090/pass-management/__admin/random-customers -H "Content-Type: application/json" -d 10
+```
+
+delete all customers
+```bash
+curl -X DELETE localhost:9090/pass-management/__admin/delete-customers
+```
+
 Further improvements
 ---
 
 - Make PUT idempotent
 - Validate Vendors code
 - Update Java version to 11
-- DeveloperController to create mock customers
+- Pagination
 - Create UI
+- Fix run.sh

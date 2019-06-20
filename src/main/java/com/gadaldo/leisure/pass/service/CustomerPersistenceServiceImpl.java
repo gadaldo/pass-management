@@ -18,54 +18,76 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class CustomerPersistenceServiceImpl implements CustomerPersistenceService {
 
-	private final CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
-	@Override
-	public Customer save(CustomerResourceI newCustomer) {
-		Customer customer = Customer.builder()
-				.name(newCustomer.getName())
-				.surname(newCustomer.getSurname())
-				.homeCity(newCustomer.getHomeCity())
-				.build();
+    @Override
+    public List<CustomerResourceO> insertAll(List<CustomerResourceI> customerTO) {
+        return toCustomerResource(
+                customerRepository.saveAll(
+                        customerTO.stream()
+                                .map(CustomerPersistenceServiceImpl::toCustomer)
+                                .collect(toList())));
+    }
 
-		return customerRepository.save(customer);
-	}
+    @Override
+    public void deleteAll() {
+        customerRepository.deleteAllInBatch();
+    }
 
-	@Override
-	public CustomerResourceO findById(Long customerId) {
-		return toCustomerResource(customerRepository.findById(customerId));
-	}
+    @Override
+    public Customer save(CustomerResourceI newCustomer) {
+        Customer customer = Customer.builder()
+                .name(newCustomer.getName())
+                .surname(newCustomer.getSurname())
+                .homeCity(newCustomer.getHomeCity())
+                .build();
 
-	@Override
-	public List<CustomerResourceO> findAll() {
-		return toCustomerResource(customerRepository.findAll());
-	}
+        return customerRepository.save(customer);
+    }
 
-	@Override
-	public void deleteCustomer(Long id) {
-		customerRepository.deleteById(id);
-	}
+    @Override
+    public CustomerResourceO findById(Long customerId) {
+        return toCustomerResource(customerRepository.findById(customerId));
+    }
 
-	private CustomerResourceO toCustomerResource(Optional<Customer> customer) {
-		return customer.map(CustomerPersistenceServiceImpl::toCustomerResource)
-				.orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-	}
+    @Override
+    public List<CustomerResourceO> findAll() {
+        return toCustomerResource(customerRepository.findAll());
+    }
 
-	private static List<CustomerResourceO> toCustomerResource(List<Customer> customers) {
-		if (isNull(customers) || customers.isEmpty())
-			throw new ResourceNotFoundException("No customer found");
+    @Override
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
+    }
 
-		return customers.stream()
-				.map(CustomerPersistenceServiceImpl::toCustomerResource)
-				.collect(toList());
-	}
+    private CustomerResourceO toCustomerResource(Optional<Customer> customer) {
+        return customer.map(CustomerPersistenceServiceImpl::toCustomerResource)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+    }
 
-	static CustomerResourceO toCustomerResource(Customer c) {
-		return CustomerResourceO.builder()
-				.id(c.getId())
-				.name(c.getName())
-				.surname(c.getSurname())
-				.homeCity(c.getHomeCity())
-				.build();
-	}
+    private static List<CustomerResourceO> toCustomerResource(List<Customer> customers) {
+        if (isNull(customers) || customers.isEmpty())
+            throw new ResourceNotFoundException("No customer found");
+
+        return customers.stream()
+                .map(CustomerPersistenceServiceImpl::toCustomerResource)
+                .collect(toList());
+    }
+
+    static CustomerResourceO toCustomerResource(Customer c) {
+        return CustomerResourceO.builder()
+                .id(c.getId())
+                .name(c.getName())
+                .surname(c.getSurname())
+                .homeCity(c.getHomeCity())
+                .build();
+    }
+
+    static Customer toCustomer(CustomerResourceI c) {
+        return Customer.builder()
+                .name(c.getName())
+                .surname(c.getSurname())
+                .homeCity(c.getHomeCity())
+                .build();
+    }
 }

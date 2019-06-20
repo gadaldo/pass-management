@@ -18,6 +18,8 @@ import com.gadaldo.leisure.pass.service.CustomerPersistenceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.springframework.http.HttpStatus.*;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class CustomerController {
 		log.info("New customer: {}", newCustomer);
 
 		try {
-			return new ResponseEntity<>("{\"id\": " + customerPersistenceService.save(newCustomer).getId() + "}", HttpStatus.CREATED);
+			return new ResponseEntity<>("{\"id\": " + customerPersistenceService.save(newCustomer).getId() + "}", CREATED);
 		} catch (Exception e) {
 			log.error("Error occurred", e);
 			throw new ResourceNotFoundException("Error saving customer", e);
@@ -43,7 +45,7 @@ public class CustomerController {
 
 		CustomerResourceO optCustomer = customerPersistenceService.findById(customerId);
 
-		return new ResponseEntity<>(optCustomer, HttpStatus.OK);
+		return new ResponseEntity<>(optCustomer, OK);
 	}
 
 	@GetMapping("/customers")
@@ -52,7 +54,7 @@ public class CustomerController {
 
 		List<CustomerResourceO> customers = customerPersistenceService.findAll();
 
-		return new ResponseEntity<>(customers, HttpStatus.OK);
+		return new ResponseEntity<>(customers, OK);
 	}
 
 	@DeleteMapping("/customers/{customerId}")
@@ -64,7 +66,7 @@ public class CustomerController {
 			throw new ResourceNotFoundException("No customer found");
 		}
 
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(NO_CONTENT);
 	}
 
 }
