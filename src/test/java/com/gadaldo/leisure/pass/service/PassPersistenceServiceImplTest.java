@@ -19,20 +19,21 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
+import static com.gadaldo.leisure.pass.util.PassUtil.*;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PassPersistenceServiceImplTest {
+
+    private static final PassResourceI LONDON_PASS = PassResourceI.builder()
+            .city("London")
+            .length(10)
+            .build();
 
     @Rule
     public ExpectedException ee = ExpectedException.none();
@@ -48,17 +49,13 @@ public class PassPersistenceServiceImplTest {
 
     @Test
     public void shouldSavePassForGivenCustomer() {
-        PassResourceI to = new PassResourceI();
-        to.setCity("London");
-        to.setLength(2);
-
-        PassResourceO expected = newPassResource(1L, "London", 2);
+        PassResourceO expected = newPassResourceO(1L, "London", 2);
 
         when(passRepositoryMock.save(any(Pass.class))).thenReturn(newPass(1L, "London", 2, new Date()));
 
         when(customerRepositoryMock.findById(1L)).thenReturn(Optional.of(Customer.builder().id(1L).build()));
 
-        PassResourceO passResO = testObj.addPassToCustomer(1L, to);
+        PassResourceO passResO = testObj.addPassToCustomer(1L, LONDON_PASS);
 
         assertThat(passResO, equalTo(expected));
         verify(customerRepositoryMock, times(1)).findById(anyLong());
@@ -70,13 +67,9 @@ public class PassPersistenceServiceImplTest {
         ee.expect(ResourceNotFoundException.class);
         ee.expectMessage("Customer Not Found");
 
-        PassResourceI to = new PassResourceI();
-        to.setCity("London");
-        to.setLength(2);
-
         when(customerRepositoryMock.findById(1L)).thenReturn(Optional.empty());
 
-        testObj.addPassToCustomer(1L, to);
+        testObj.addPassToCustomer(1L, LONDON_PASS);
     }
 
     @Test
@@ -88,9 +81,9 @@ public class PassPersistenceServiceImplTest {
         existingPasses.add(newPass(5L, "Madrid", 3, new Date(), customer));
 
         List<PassResourceO> expectedPasses = new ArrayList<>();
-        expectedPasses.add(newPassResource(3L, "London", 3));
-        expectedPasses.add(newPassResource(4L, "Milan", 2));
-        expectedPasses.add(newPassResource(5L, "Madrid", 3));
+        expectedPasses.add(newPassResourceO(3L, "London", 3));
+        expectedPasses.add(newPassResourceO(4L, "Milan", 2));
+        expectedPasses.add(newPassResourceO(5L, "Madrid", 3));
 
         CustomerResourceO expectedCustomer = CustomerResourceO.builder()
                 .id(customer.getId())
@@ -118,17 +111,13 @@ public class PassPersistenceServiceImplTest {
 
     @Test
     public void shouldUpdateCustomerPass() {
-        PassResourceI inputRes = new PassResourceI();
-        inputRes.setCity("London");
-        inputRes.setLength(10);
-
         Pass pass = newPass(10L, "London", 3, new Date(), Customer.builder().id(1L).build());
 
         when(passRepositoryMock.findByIdAndCustomerId(10L, 1L)).thenReturn(Optional.of(pass));
 
         when(passRepositoryMock.save(pass)).thenReturn(pass);
 
-        PassResourceO updatedPass = testObj.updateCustomerPass(1L, 10L, inputRes);
+        PassResourceO updatedPass = testObj.updateCustomerPass(1L, 10L, LONDON_PASS);
 
         assertThat(updatedPass.getLength(), equalTo(10));
 
@@ -141,9 +130,10 @@ public class PassPersistenceServiceImplTest {
         ee.expect(ResourceNotFoundException.class);
         ee.expectMessage("Pass Not Found");
 
-        PassResourceI to = new PassResourceI();
-        to.setCity("London");
-        to.setLength(10);
+        PassResourceI to = PassResourceI.builder()
+                .city("London")
+                .length(10)
+                .build();
 
         when(passRepositoryMock.findByIdAndCustomerId(10L, 1L)).thenReturn(Optional.empty());
 
@@ -191,35 +181,6 @@ public class PassPersistenceServiceImplTest {
         when(passRepositoryMock.findById(1L)).thenReturn(Optional.empty());
 
         testObj.isValid(1L);
-    }
-
-    private CustomerPassResourceO newCustomerPassResource(List<PassResourceO> passes, CustomerResourceO customer) {
-        return CustomerPassResourceO.builder()
-                .customer(customer)
-                .passes(passes)
-                .build();
-    }
-
-    private PassResourceO newPassResource(Long id, String city, int length) {
-        return PassResourceO.builder()
-                .id(id)
-                .city(city)
-                .length(length)
-                .build();
-    }
-
-    private Pass newPass(Long id, String city, int length, Date date) {
-        return newPass(id, city, length, date, null);
-    }
-
-    private Pass newPass(Long id, String city, int length, Date date, Customer customer) {
-        return Pass.builder()
-                .id(id)
-                .length(length)
-                .createdAt(date)
-                .city(city)
-                .customer(customer)
-                .build();
     }
 
 }

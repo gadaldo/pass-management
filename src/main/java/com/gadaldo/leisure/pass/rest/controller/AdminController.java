@@ -45,10 +45,11 @@ public class AdminController {
     }
 
     private static CustomerResourceI createRandomCustomer() {
-        CustomerResourceI customerRes = new CustomerResourceI();
-        customerRes.setHomeCity(faker.address().city());
-        customerRes.setName(faker.name().firstName());
-        customerRes.setSurname(faker.name().lastName());
+        CustomerResourceI customerRes = CustomerResourceI.builder()
+                .homeCity(faker.address().city())
+                .name(faker.name().firstName())
+                .surname(faker.name().lastName())
+                .build();
 
         return customerRes;
     }

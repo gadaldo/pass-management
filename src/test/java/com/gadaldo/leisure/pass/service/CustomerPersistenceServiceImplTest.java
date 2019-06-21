@@ -2,9 +2,11 @@ package com.gadaldo.leisure.pass.service;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
+import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
+import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -13,13 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.gadaldo.leisure.pass.util.CustomerUtil.*;
+import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -37,12 +39,10 @@ public class CustomerPersistenceServiceImplTest {
 
     @Test
     public void shouldSaveCustomer() {
-        CustomerResourceI to = new CustomerResourceI();
-        to.setHomeCity("London");
-        to.setName("Alex");
-        to.setSurname("Wood");
+        CustomerResourceI to = newCustomerResourceI("Alex", "Wood", "London");
 
-        when(customerRepositoryMock.save(any(Customer.class))).thenReturn(newCustomer(1L, "Alex", "Wood", "London"));
+        when(customerRepositoryMock.save(any(Customer.class)))
+                .thenReturn(newCustomer(1L, "Alex", "Wood", "London"));
 
         Customer customer = testObj.save(to);
 
@@ -101,9 +101,9 @@ public class CustomerPersistenceServiceImplTest {
         existingCustomers.add(newCustomer(3L, "Sarah", "Williams", "Madrid"));
 
         List<CustomerResourceO> expectedCustomers = new ArrayList<>();
-        expectedCustomers.add(newCustomerResource(1L, "John", "Dooh", "Milan"));
-        expectedCustomers.add(newCustomerResource(2L, "Alex", "Ferguson", "Paris"));
-        expectedCustomers.add(newCustomerResource(3L, "Sarah", "Williams", "Madrid"));
+        expectedCustomers.add(newCustomerResourceO(1L, "John", "Dooh", "Milan"));
+        expectedCustomers.add(newCustomerResourceO(2L, "Alex", "Ferguson", "Paris"));
+        expectedCustomers.add(newCustomerResourceO(3L, "Sarah", "Williams", "Madrid"));
 
         when(customerRepositoryMock.findAll()).thenReturn(existingCustomers);
 
@@ -118,7 +118,7 @@ public class CustomerPersistenceServiceImplTest {
         ee.expect(ResourceNotFoundException.class);
         ee.expectMessage("No customer found");
 
-        when(customerRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+        when(customerRepositoryMock.findAll()).thenReturn(emptyList());
 
         testObj.findAll();
     }
@@ -133,21 +133,38 @@ public class CustomerPersistenceServiceImplTest {
         verify(customerRepositoryMock, never()).delete(any(Customer.class));
     }
 
-    private Customer newCustomer(Long id, String name, String surname, String homeCity) {
-        return Customer.builder()
-                .id(id)
-                .name(name)
-                .surname(surname)
-                .homeCity(homeCity)
+
+    @Test
+    public void shouldSaveCustomerWithPass() {
+        Set<PassResourceI> passes = new HashSet<>();
+        passes.add(PassResourceI.builder()
+                .city("Naples")
+                .length(6)
+                .build());
+
+        CustomerResourceI to = newCustomerResourceI("Alex", "Wood", "London", passes);
+
+        Pass pass = Pass.builder()
+                .city("Naples")
+                .length(6)
                 .build();
+
+        Set<Pass> customerPasses = new HashSet<>();
+        customerPasses.add(pass);
+
+        when(customerRepositoryMock.save(any(Customer.class)))
+                .thenReturn(newCustomer(1L, "Alex", "Wood", "London", customerPasses));
+
+        Customer customer = testObj.save(to);
+
+        assertEquals("Alex", customer.getName());
+        assertEquals("Wood", customer.getSurname());
+        assertEquals("London", customer.getHomeCity());
+        assertNotNull(customer.getId());
+        assertThat(customer.getPasses(), hasSize(1));
+        Pass returnedPass = customer.getPasses().iterator().next();
+        assertThat(returnedPass.getCity(), is("Naples"));
+        assertThat(returnedPass.getLength(), is(6));
     }
 
-    private CustomerResourceO newCustomerResource(Long id, String name, String surname, String homeCity) {
-        return CustomerResourceO.builder()
-                .id(id)
-                .name(name)
-                .surname(surname)
-                .homeCity(homeCity)
-                .build();
-    }
 }

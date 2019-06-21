@@ -1,16 +1,16 @@
 package com.gadaldo.leisure.pass.rest.controller;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
-import java.util.Date;
-
+import com.gadaldo.leisure.pass.repository.CustomerRepository;
+import com.gadaldo.leisure.pass.repository.PassRepository;
+import com.gadaldo.leisure.pass.repository.model.Customer;
+import com.gadaldo.leisure.pass.repository.model.Pass;
+import com.gadaldo.leisure.pass.rest.model.CustomerPassResourceO;
+import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
+import com.gadaldo.leisure.pass.rest.model.PassResourceI;
+import com.gadaldo.leisure.pass.rest.model.PassResourceO;
+import com.gadaldo.leisure.pass.util.PassUtil;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
@@ -22,170 +22,155 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.gadaldo.leisure.pass.repository.CustomerRepository;
-import com.gadaldo.leisure.pass.repository.PassRepository;
-import com.gadaldo.leisure.pass.repository.model.Customer;
-import com.gadaldo.leisure.pass.repository.model.Pass;
-import com.gadaldo.leisure.pass.rest.model.CustomerPassResourceO;
-import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
-import com.gadaldo.leisure.pass.rest.model.PassResourceI;
-import com.gadaldo.leisure.pass.rest.model.PassResourceO;
+import java.util.Date;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
+import static com.gadaldo.leisure.pass.util.CustomerUtil.newCustomer;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource("classpath:application-test.properties")
 public class PassControllerTest {
 
-	@Before
-	public void setup() {
-		RestAssured.port = Integer.valueOf(port);
-	}
+    private static final Customer JOHN_SMITH = newCustomer(1L, "John", "Smith", "Brighton");
 
-	@After
-	public void teardown() {
-		customerRepository.deleteAll();
-		passRepository.deleteAll();
-	}
+    private static final PassResourceI MILAN_PASS = PassResourceI.builder()
+            .city("Milan")
+            .length(2)
+            .build();
 
-	@LocalServerPort
-	private String port;
+    @Before
+    public void setup() {
+        RestAssured.port = Integer.valueOf(port);
+    }
 
-	@Autowired
-	private CustomerRepository customerRepository;
+    @After
+    public void teardown() {
+        customerRepository.deleteAll();
+        passRepository.deleteAll();
+    }
 
-	@Autowired
-	private PassRepository passRepository;
+    @LocalServerPort
+    private String port;
 
-	@Test
-	public void getPassesShouldReturnNoPassFoundWhenThereAreNoPassesForGivenCustomer() {
-		when()
-				.get("pass-management/customers/1/passes")
-				.then()
-				.assertThat()
-				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(containsString("No pass found"));
-	}
+    @Autowired
+    private CustomerRepository customerRepository;
 
-	@Test
-	public void getPassesShouldReturnPassForGivenCustomer() {
-		Customer customer = customerRepository.save(newCustomer());
-		Pass pass = passRepository.save(Pass.builder().city("Chicago").createdAt(new Date()).length(3).customer(customer).build());
+    @Autowired
+    private PassRepository passRepository;
 
-		CustomerPassResourceO expected = CustomerPassResourceO.builder()
-				.customer(CustomerResourceO.builder()
-						.id(customer.getId())
-						.name(customer.getName())
-						.surname(customer.getSurname())
-						.homeCity(customer.getHomeCity())
-						.build())
-				.passes(singletonList(PassResourceO.builder()
-						.city(pass.getCity())
-						.length(pass.getLength())
-						.id(pass.getId())
-						.build()))
-				.build();
+    @Test
+    public void getPassesShouldReturnNoPassFoundWhenThereAreNoPassesForGivenCustomer() {
+        when()
+                .get("pass-management/customers/1/passes")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .body(containsString("No pass found"));
+    }
 
-		assertThat(when().get("pass-management/customers/" + customer.getId() + "/passes")
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_OK)
-				.extract()
-				.as(CustomerPassResourceO.class),
-				is(expected));
-	}
+    @Test
+    public void getPassesShouldReturnPassForGivenCustomer() {
+        Customer customer = customerRepository.save(JOHN_SMITH);
+        Pass pass = passRepository.save(Pass.builder().city("Chicago").createdAt(new Date()).length(3).customer(customer).build());
 
-	@Test
-	public void addPassesShouldReturnNewPassForGivenCustomer() {
-		Customer customer = customerRepository.save(newCustomer());
+        CustomerPassResourceO expected = CustomerPassResourceO.builder()
+                .customer(CustomerResourceO.builder()
+                        .id(customer.getId())
+                        .name(customer.getName())
+                        .surname(customer.getSurname())
+                        .homeCity(customer.getHomeCity())
+                        .build())
+                .passes(singletonList(PassResourceO.builder()
+                        .city(pass.getCity())
+                        .length(pass.getLength())
+                        .id(pass.getId())
+                        .build()))
+                .build();
 
-		PassResourceI requestBody = new PassResourceI();
-		requestBody.setCity("Milan");
-		requestBody.setLength(2);
+        assertThat(when().get("pass-management/customers/" + customer.getId() + "/passes")
+                        .then().assertThat()
+                        .statusCode(HttpStatus.SC_OK)
+                        .extract()
+                        .as(CustomerPassResourceO.class),
+                is(expected));
+    }
 
-		PassResourceO returned = given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-				.body(requestBody).post("pass-management/customers/" + customer.getId() + "/passes")
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_CREATED)
-				.extract()
-				.as(PassResourceO.class);
+    @Test
+    public void addPassesShouldReturnNewPassForGivenCustomer() {
+        Customer customer = customerRepository.save(JOHN_SMITH);
 
-		assertThat(returned.getCity(), equalTo("Milan"));
-		assertThat(returned.getLength(), equalTo(2));
-		assertThat(returned.getId(), notNullValue());
-	}
+        PassResourceO returned = given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .body(MILAN_PASS).post("pass-management/customers/" + customer.getId() + "/passes")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_CREATED)
+                .extract()
+                .as(PassResourceO.class);
 
-	@Test
-	public void addPassesShouldReturnNoPassFoundWhenCustomerDoesNotExists() {
-		PassResourceI requestBody = new PassResourceI();
-		requestBody.setCity("Milan");
-		requestBody.setLength(2);
+        assertThat(returned.getCity(), equalTo("Milan"));
+        assertThat(returned.getLength(), equalTo(2));
+        assertThat(returned.getId(), notNullValue());
+    }
 
-		given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-				.body(requestBody).post("pass-management/customers/404/passes")
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(equalTo("Customer Not Found"));
-	}
+    @Test
+    public void addPassesShouldReturnNoPassFoundWhenCustomerDoesNotExists() {
+        given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .body(MILAN_PASS).post("pass-management/customers/404/passes")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .body(equalTo("Customer Not Found"));
+    }
 
-	@Test
-	public void updatePassesShouldReturnPassNotFoundWhenCustomerDoesNotExists() {
-		PassResourceI requestBody = new PassResourceI();
-		requestBody.setCity("Milan");
-		requestBody.setLength(2);
+    @Test
+    public void updatePassesShouldReturnPassNotFoundWhenCustomerDoesNotExists() {
+        given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .body(MILAN_PASS).put("pass-management/customers/404/passes/303")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .body(equalTo("Pass Not Found"));
+    }
 
-		given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-				.body(requestBody).put("pass-management/customers/404/passes/303")
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(equalTo("Pass Not Found"));
-	}
+    @Test
+    public void updatePassesShouldReturnPass() {
+        Customer customer = customerRepository.save(JOHN_SMITH);
+        Pass pass = passRepository.save(Pass.builder().city("Naples").createdAt(new Date()).length(3).customer(customer).build());
 
-	@Test
-	public void updatePassesShouldReturnPass() {
-		Customer customer = customerRepository.save(newCustomer());
-		Pass pass = passRepository.save(Pass.builder().city("Naples").createdAt(new Date()).length(3).customer(customer).build());
+        PassResourceO expected = PassResourceO.builder()
+                .city("Naples")
+                .id(pass.getId())
+                .length(5)
+                .build();
 
-		PassResourceI requestBody = new PassResourceI();
-		requestBody.setCity("Naples");
-		requestBody.setLength(10);
+        assertThat(given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
+                .body(PassUtil.newPassResourceI("Naples", 5)).put("pass-management/customers/" + customer.getId() + "/passes/" + pass.getId())
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(PassResourceO.class), equalTo(expected));
+    }
 
-		PassResourceO expected = PassResourceO.builder()
-				.city("Naples")
-				.id(pass.getId())
-				.length(10)
-				.build();
+    @Test
+    public void deletePassesShouldReturnNoContent() {
+        Customer customer = customerRepository.save(JOHN_SMITH);
+        Pass pass = passRepository.save(Pass.builder().city("Chicago").createdAt(new Date()).length(3).customer(customer).build());
 
-		assertThat(given().headers("Content-Type", ContentType.JSON, "Accept", ContentType.JSON)
-				.body(requestBody).put("pass-management/customers/" + customer.getId() + "/passes/" + pass.getId())
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_OK)
-				.extract()
-				.as(PassResourceO.class), equalTo(expected));
-	}
+        when().delete("pass-management/customers/" + customer.getId() + "/passes/" + pass.getId())
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_NO_CONTENT);
+    }
 
-	@Test
-	public void deletePassesShouldReturnNoContent() {
-		Customer customer = customerRepository.save(newCustomer());
-		Pass pass = passRepository.save(Pass.builder().city("Chicago").createdAt(new Date()).length(3).customer(customer).build());
+    @Test
+    public void deletePassesShouldReturnNoCustomerFound() {
+        Customer customer = customerRepository.save(JOHN_SMITH);
 
-		when().delete("pass-management/customers/" + customer.getId() + "/passes/" + pass.getId())
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_NO_CONTENT);
-	}
+        when().delete("pass-management/customers/" + customer.getId() + "/passes/404")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_NOT_FOUND)
+                .body(equalTo("Pass Not Found"));
+    }
 
-	@Test
-	public void deletePassesShouldReturnNoCustomerFound() {
-		Customer customer = customerRepository.save(newCustomer());
-
-		when().delete("pass-management/customers/" + customer.getId() + "/passes/404")
-				.then().assertThat()
-				.statusCode(HttpStatus.SC_NOT_FOUND)
-				.body(equalTo("Pass Not Found"));
-	}
-
-	private Customer newCustomer() {
-		return Customer.builder().name("John").surname("Smith").homeCity("Brighton").build();
-	}
 }
