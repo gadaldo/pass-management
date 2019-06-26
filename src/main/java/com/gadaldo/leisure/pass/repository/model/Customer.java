@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 import static lombok.AccessLevel.PACKAGE;
 
@@ -31,8 +30,5 @@ public class Customer {
 
     @NotNull
     private String homeCity;
-
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Pass> passes;
 
 }

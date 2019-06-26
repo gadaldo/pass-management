@@ -4,10 +4,10 @@ import com.gadaldo.leisure.pass.repository.CustomerRepository;
 import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
-import com.gadaldo.leisure.pass.rest.model.CustomerPassResourceO;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 import com.gadaldo.leisure.pass.rest.model.PassResourceO;
+import com.gadaldo.leisure.pass.util.CustomerUtil;
 import com.gadaldo.leisure.pass.util.PassUtil;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -24,10 +24,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Date;
 
-import static com.gadaldo.leisure.pass.util.CustomerUtil.newCustomer;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.singleton;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertThat;
 @TestPropertySource("classpath:application-test.properties")
 public class PassControllerTest {
 
-    private static final Customer JOHN_SMITH = newCustomer(1L, "John", "Smith", "Brighton");
+    private static final Customer JOHN_SMITH = CustomerUtil.newCustomer(1L, "John", "Smith", "Brighton");
 
     private static final PassResourceI MILAN_PASS = PassResourceI.builder()
             .city("Milan")
@@ -78,14 +77,12 @@ public class PassControllerTest {
         Customer customer = customerRepository.save(JOHN_SMITH);
         Pass pass = passRepository.save(Pass.builder().city("Chicago").createdAt(new Date()).length(3).customer(customer).build());
 
-        CustomerPassResourceO expected = CustomerPassResourceO.builder()
-                .customer(CustomerResourceO.builder()
-                        .id(customer.getId())
-                        .name(customer.getName())
-                        .surname(customer.getSurname())
-                        .homeCity(customer.getHomeCity())
-                        .build())
-                .passes(singletonList(PassResourceO.builder()
+        CustomerResourceO expected = CustomerResourceO.builder()
+                .id(customer.getId())
+                .name(customer.getName())
+                .surname(customer.getSurname())
+                .homeCity(customer.getHomeCity())
+                .passes(singleton(PassResourceO.builder()
                         .city(pass.getCity())
                         .length(pass.getLength())
                         .id(pass.getId())
@@ -96,7 +93,7 @@ public class PassControllerTest {
                         .then().assertThat()
                         .statusCode(HttpStatus.SC_OK)
                         .extract()
-                        .as(CustomerPassResourceO.class),
+                        .as(CustomerResourceO.class),
                 is(expected));
     }
 

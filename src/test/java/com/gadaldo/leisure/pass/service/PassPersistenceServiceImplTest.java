@@ -5,7 +5,6 @@ import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
-import com.gadaldo.leisure.pass.rest.model.CustomerPassResourceO;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 import com.gadaldo.leisure.pass.rest.model.PassResourceO;
@@ -19,9 +18,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
 
-import static com.gadaldo.leisure.pass.util.PassUtil.*;
+import static com.gadaldo.leisure.pass.util.PassUtil.newPass;
+import static com.gadaldo.leisure.pass.util.PassUtil.newPassResourceO;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -80,23 +81,21 @@ public class PassPersistenceServiceImplTest {
         existingPasses.add(newPass(4L, "Milan", 2, new Date(), customer));
         existingPasses.add(newPass(5L, "Madrid", 3, new Date(), customer));
 
-        List<PassResourceO> expectedPasses = new ArrayList<>();
+        Set<PassResourceO> expectedPasses = new HashSet<>();
         expectedPasses.add(newPassResourceO(3L, "London", 3));
         expectedPasses.add(newPassResourceO(4L, "Milan", 2));
         expectedPasses.add(newPassResourceO(5L, "Madrid", 3));
 
         CustomerResourceO expectedCustomer = CustomerResourceO.builder()
                 .id(customer.getId())
+                .passes(expectedPasses)
                 .build();
-
-        CustomerPassResourceO expectedResult = newCustomerPassResource(expectedPasses, expectedCustomer);
 
         when(passRepositoryMock.findByCustomerId(1L)).thenReturn(existingPasses);
 
-        CustomerPassResourceO returnedPasses = testObj.findByCustomerId(1L);
+        CustomerResourceO returnedPasses = testObj.findByCustomerId(1L);
 
-        assertThat(returnedPasses, equalTo(expectedResult));
-        assertEquals(expectedCustomer, returnedPasses.getCustomer());
+        assertThat(returnedPasses.getPasses(), containsInAnyOrder(expectedCustomer.getPasses().toArray()));
         verify(passRepositoryMock, times(1)).findByCustomerId(anyLong());
     }
 

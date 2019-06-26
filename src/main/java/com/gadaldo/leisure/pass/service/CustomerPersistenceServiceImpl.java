@@ -1,17 +1,18 @@
 package com.gadaldo.leisure.pass.service;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
+import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
-import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
-import java.util.Optional;
 
-import static java.util.Objects.isNull;
+import static com.gadaldo.leisure.pass.service.CustomerMapper.toCustomer;
+import static com.gadaldo.leisure.pass.service.CustomerMapper.toCustomerResource;
+import static com.gadaldo.leisure.pass.service.PassMapper.toPassSet;
 import static java.util.stream.Collectors.toList;
 
 @Controller
@@ -19,13 +20,14 @@ import static java.util.stream.Collectors.toList;
 public class CustomerPersistenceServiceImpl implements CustomerPersistenceService {
 
     private final CustomerRepository customerRepository;
+    private final PassRepository passRepository;
 
     @Override
     public List<CustomerResourceO> insertAll(List<CustomerResourceI> customerTO) {
-        return toCustomerResource(
+        return CustomerMapper.toCustomerResourceList(
                 customerRepository.saveAll(
                         customerTO.stream()
-                                .map(CustomerPersistenceServiceImpl::toCustomer)
+                                .map(CustomerMapper::toCustomer)
                                 .collect(toList())));
     }
 
@@ -36,13 +38,10 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 
     @Override
     public Customer save(CustomerResourceI newCustomer) {
-        Customer customer = Customer.builder()
-                .name(newCustomer.getName())
-                .surname(newCustomer.getSurname())
-                .homeCity(newCustomer.getHomeCity())
-                .build();
-
-        return customerRepository.save(customer);
+        Customer customer = customerRepository.save(toCustomer(newCustomer));
+        toPassSet(newCustomer.getPasses(), customer)
+                .ifPresent(passRepository::saveAll);
+        return customer;
     }
 
     @Override
@@ -52,7 +51,7 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
 
     @Override
     public List<CustomerResourceO> findAll() {
-        return toCustomerResource(customerRepository.findAll());
+        return CustomerMapper.toCustomerResourceList(customerRepository.findAll());
     }
 
     @Override
@@ -60,34 +59,5 @@ public class CustomerPersistenceServiceImpl implements CustomerPersistenceServic
         customerRepository.deleteById(id);
     }
 
-    private CustomerResourceO toCustomerResource(Optional<Customer> customer) {
-        return customer.map(CustomerPersistenceServiceImpl::toCustomerResource)
-                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
-    }
 
-    private static List<CustomerResourceO> toCustomerResource(List<Customer> customers) {
-        if (isNull(customers) || customers.isEmpty())
-            throw new ResourceNotFoundException("No customer found");
-
-        return customers.stream()
-                .map(CustomerPersistenceServiceImpl::toCustomerResource)
-                .collect(toList());
-    }
-
-    static CustomerResourceO toCustomerResource(Customer c) {
-        return CustomerResourceO.builder()
-                .id(c.getId())
-                .name(c.getName())
-                .surname(c.getSurname())
-                .homeCity(c.getHomeCity())
-                .build();
-    }
-
-    static Customer toCustomer(CustomerResourceI c) {
-        return Customer.builder()
-                .name(c.getName())
-                .surname(c.getSurname())
-                .homeCity(c.getHomeCity())
-                .build();
-    }
 }

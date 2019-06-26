@@ -1,6 +1,7 @@
 package com.gadaldo.leisure.pass.service;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
+import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.controller.ResourceNotFoundException;
@@ -19,9 +20,8 @@ import java.util.*;
 
 import static com.gadaldo.leisure.pass.util.CustomerUtil.*;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -34,11 +34,14 @@ public class CustomerPersistenceServiceImplTest {
     @Mock
     private CustomerRepository customerRepositoryMock;
 
+    @Mock
+    private PassRepository passRepositoryMock;
+
     @InjectMocks
     private CustomerPersistenceServiceImpl testObj;
 
     @Test
-    public void shouldSaveCustomer() {
+    public void shouldSaveCustomerAndNotSavingPassWhenGivenPassesIsEmpty() {
         CustomerResourceI to = newCustomerResourceI("Alex", "Wood", "London");
 
         when(customerRepositoryMock.save(any(Customer.class)))
@@ -50,6 +53,10 @@ public class CustomerPersistenceServiceImplTest {
         assertEquals("Wood", customer.getSurname());
         assertEquals("London", customer.getHomeCity());
         assertNotNull(customer.getId());
+
+        verify(customerRepositoryMock, times(1)).save(any(Customer.class));
+        verify(passRepositoryMock, never()).saveAll(anyIterable());
+        verify(passRepositoryMock, never()).save(any(Pass.class));
     }
 
     @Test
@@ -144,16 +151,8 @@ public class CustomerPersistenceServiceImplTest {
 
         CustomerResourceI to = newCustomerResourceI("Alex", "Wood", "London", passes);
 
-        Pass pass = Pass.builder()
-                .city("Naples")
-                .length(6)
-                .build();
-
-        Set<Pass> customerPasses = new HashSet<>();
-        customerPasses.add(pass);
-
         when(customerRepositoryMock.save(any(Customer.class)))
-                .thenReturn(newCustomer(1L, "Alex", "Wood", "London", customerPasses));
+                .thenReturn(newCustomer(1L, "Alex", "Wood", "London"));
 
         Customer customer = testObj.save(to);
 
@@ -161,10 +160,10 @@ public class CustomerPersistenceServiceImplTest {
         assertEquals("Wood", customer.getSurname());
         assertEquals("London", customer.getHomeCity());
         assertNotNull(customer.getId());
-        assertThat(customer.getPasses(), hasSize(1));
-        Pass returnedPass = customer.getPasses().iterator().next();
-        assertThat(returnedPass.getCity(), is("Naples"));
-        assertThat(returnedPass.getLength(), is(6));
+
+        verify(customerRepositoryMock, times(1)).save(any(Customer.class));
+        verify(passRepositoryMock, times(1)).saveAll(anyIterable());
+        verify(passRepositoryMock, never()).save(any(Pass.class));
     }
 
 }

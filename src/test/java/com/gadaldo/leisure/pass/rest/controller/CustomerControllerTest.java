@@ -1,6 +1,7 @@
 package com.gadaldo.leisure.pass.rest.controller;
 
 import com.gadaldo.leisure.pass.repository.CustomerRepository;
+import com.gadaldo.leisure.pass.repository.PassRepository;
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
@@ -50,6 +51,9 @@ public class CustomerControllerTest {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private PassRepository passRepository;
 
     @Test
     public void getCustomersShouldReturnNoCustomerFoundMessage() {
@@ -131,10 +135,10 @@ public class CustomerControllerTest {
 
         assertThat(customerId, notNullValue());
 
-        Pass pass = customerRepository.findById(customerId.longValue()).get().getPasses().iterator().next(); // FIXME
+        Pass pass = passRepository.findByCustomerId(customerId.longValue()).get(0);
         assertThat(pass.getLength(), is(7));
         assertThat(pass.getCity(), is("New York"));
-        assertThat(pass.getCustomer().getId(), is(customerId));
+        assertThat(pass.getCustomer().getId(), is(customerId.longValue()));
     }
 
     @Test

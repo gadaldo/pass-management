@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export mysql_port="33090"
-export mysql_url="localhost:"${mysql_port}
+export mysql_host="localhost:"${mysql_port}
 export mysql_password="passw0rd"
 export mysql_user="pass"
 export mysql_schema_name="pass-management"
@@ -29,10 +29,10 @@ docker run -d -p ${mysql_port}:3306 --name=mysql \
 
 sleep 10
 
-#while ! mysqladmin ping -h"$DB_HOST" --silent; do
+#while ! mysqladmin ping -h"$mysql_host" --silent; do
 #    sleep 1
 #done
 
 echo "============================================== running service ============================================"
 
-mvn spring-boot:run
+java -jar target/pass-management.jar

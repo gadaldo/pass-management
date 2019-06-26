@@ -2,22 +2,12 @@ package com.gadaldo.leisure.pass.util;
 
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.repository.model.Pass;
-import com.gadaldo.leisure.pass.rest.model.CustomerPassResourceO;
-import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
 import com.gadaldo.leisure.pass.rest.model.PassResourceI;
 import com.gadaldo.leisure.pass.rest.model.PassResourceO;
 
 import java.util.Date;
-import java.util.List;
 
 public class PassUtil {
-
-    public static CustomerPassResourceO newCustomerPassResource(List<PassResourceO> passes, CustomerResourceO customer) {
-        return CustomerPassResourceO.builder()
-                .customer(customer)
-                .passes(passes)
-                .build();
-    }
 
     public static PassResourceO newPassResourceO(Long id, String city, int length) {
         return PassResourceO.builder()
