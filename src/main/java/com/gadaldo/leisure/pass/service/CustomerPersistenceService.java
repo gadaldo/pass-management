@@ -1,10 +1,10 @@
 package com.gadaldo.leisure.pass.service;
 
+import java.util.List;
+
 import com.gadaldo.leisure.pass.repository.model.Customer;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceI;
 import com.gadaldo.leisure.pass.rest.model.CustomerResourceO;
-
-import java.util.List;
 
 public interface CustomerPersistenceService {
 

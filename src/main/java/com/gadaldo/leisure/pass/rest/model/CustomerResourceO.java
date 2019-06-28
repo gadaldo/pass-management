@@ -1,9 +1,9 @@
 package com.gadaldo.leisure.pass.rest.model;
 
+import java.util.Set;
+
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.Set;
 
 @Data
 @Builder
